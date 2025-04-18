@@ -1,5 +1,6 @@
 # Model and training files
-crash_cause_model/
+crash_cause_model_v2/
+crash_cause_model_v3/
 results/
 *.pkl
 *.bin

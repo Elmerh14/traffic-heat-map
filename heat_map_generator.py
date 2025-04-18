@@ -8,7 +8,7 @@ import folium
 from folium.plugins import HeatMap
 
 # === Load trained model and tokenizer ===
-model_path = "./crash_cause_model"
+model_path = "./crash_cause_model_v3"   # Update this when making a new model or reteaching the new model
 model = DistilBertForSequenceClassification.from_pretrained(
     model_path,
     local_files_only=True
@@ -22,7 +22,7 @@ tokenizer = DistilBertTokenizerFast.from_pretrained(
 model.eval()
 
 # === Load label encoder ===
-label_encoder = joblib.load("label_encoder.pkl")
+label_encoder = joblib.load("label_encoder_v2.pkl")
 
 # === Load hypothetical or real location-time-weather data ===
 data = pd.read_csv("heatmap_input.csv")  # You create this CSV manually or simulate it

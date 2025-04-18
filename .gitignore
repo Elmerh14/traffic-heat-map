@@ -1,0 +1,19 @@
+# Model and training files
+crash_cause_model/
+results/
+*.pkl
+*.bin
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter / Notebook stuff
+*.ipynb_checkpoints/
+
+# VSCode settings
+.vscode/
+
+# Optional: large data files
+*.csv
+*.xlsx

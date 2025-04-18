@@ -79,4 +79,39 @@ deactivate
 
 ---
 
+##  AI
+
+- There was the use of GPT for the code to use stuff like Pytorch, Pandas, Transformers, Joblib, folium to put the data together. The data was found from the crash reports here in Colorado in 2024 
+    - https://www.codot.gov/safety/traffic-safety/data-analysis/crash-data
+- Model that was used to train was the distilBERT
+- DistilBERT tokenizer knows how to break down English sentences which was from the Huggin Face model
+- In the heat map only 2000 data rows were used since more rows was taking a good amount of time to train and then create the heat map based on the risk the model gave it
+- There is still a big gap for us to understand the model distilBERT and how it is doing the predicting since this is our first time doing something like this
+- There was a lot of things that were learned in the process about like how the model is getting the data and how it processes it, but there is still more to explore to fully understand 
+
+---
+
+## Data
+
+- Columns from the data set that were used was:
+    - CUID
+    - Crash Type
+    - Road conditions
+    - Weather Conditions
+    - Lighting Conditions
+    - Crash Date
+    - Crash Time
+    - City
+    - County
+    - TU-1 Driver Action
+    - TU-2 Driver Action
+    - TU-1 Human Contributing Factor
+    - TU-2 Human Contributing Factor
+    - TU-1 Age
+    - TU-2 Age
+    - Latitude
+    - Longitude
+
+--
+
 Feel free to customize the project structure and add more features as needed!

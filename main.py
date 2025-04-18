@@ -1,5 +1,4 @@
-# train_crash_classifier.py (Modified for Older Transformers)
-# train_crash_classifier.py (Fast version on 50 rows)
+# train_crash_classifier.py (Continued Training from v2 → Save as v3)
 
 import pandas as pd
 import torch
@@ -17,10 +16,20 @@ MAX_LEN = 256
 BATCH_SIZE = 8
 EPOCHS = 2
 
+
 # === 1. Load & Clean Data ===
 read_kwargs = {"nrows": 50} if not USE_CSV else {}
 df = pd.read_csv(FILE_PATH) if USE_CSV else pd.read_excel(FILE_PATH, **read_kwargs)
 
+def get_next_model_version(base_name="crash_cause_model"):
+    version = 2
+    while os.path.exists(f"{base_name}_v{version}"):
+        version += 1
+    model_path = f"{base_name}_v{version}"
+    return model_path, version
+
+SAVE_MODEL_PATH, version = get_next_model_version()
+PREVIOUS_MODEL_PATH = f"crash_cause_model_v{version - 1}"
 
 def get_primary_cause(row):
     for col in ['TU-1 Human Contributing Factor', 'TU-2 Human Contributing Factor']:
@@ -46,14 +55,15 @@ if TEXT_COL not in df.columns:
         )
     df[TEXT_COL] = df.apply(create_sentence, axis=1)
 
-# === 2. Encode Labels ===
-le = LabelEncoder()
-df['label'] = le.fit_transform(df[LABEL_COL])
-num_labels = len(le.classes_)
-
-# Save label encoder
+# === 2. Encode Labels (Load existing encoder) ===
 import joblib
-joblib.dump(le, "label_encoder.pkl")
+le = joblib.load("label_encoder_v2.pkl")
+print(f"✅ Loaded label encoder with {len(le.classes_)} classes: {list(le.classes_)}")
+
+# Filter to only known labels
+df = df[df[LABEL_COL].isin(le.classes_)]
+df['label'] = le.transform(df[LABEL_COL])
+num_labels = len(le.classes_)
 
 # === 3. Tokenize ===
 tokenizer = DistilBertTokenizerFast.from_pretrained('distilbert-base-uncased')
@@ -77,10 +87,10 @@ train_size = int(0.8 * len(dataset))
 val_size = len(dataset) - train_size
 train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
-# === 5. Load Model ===
-model = DistilBertForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=num_labels)
+# === 5. Load Model (from v2) ===
+model = DistilBertForSequenceClassification.from_pretrained(PREVIOUS_MODEL_PATH, num_labels=num_labels)
 
-# === 6. Training (Simplified for Speed) ===
+# === 6. Training ===
 training_args = TrainingArguments(
     output_dir="./results",
     per_device_train_batch_size=BATCH_SIZE,
@@ -98,7 +108,7 @@ trainer = Trainer(
 trainer.train()
 
 # === 7. Save Model ===
-model.save_pretrained("crash_cause_model")
-tokenizer.save_pretrained("crash_cause_model")
+model.save_pretrained(SAVE_MODEL_PATH)
+tokenizer.save_pretrained(SAVE_MODEL_PATH)
 
-print("✅ Training complete. Model and label encoder saved.")
+print(f"✅ Continued training complete. Model saved to {SAVE_MODEL_PATH}")
